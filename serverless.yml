@@ -1,0 +1,32 @@
+service: telegram-manager
+frameworkVersion: '2'
+
+provider:
+  profile: usera2tt
+  name: aws
+  runtime: python3.8
+  role: arn:aws:iam::664652812385:role/TelegramManagerRole
+  region: ap-northeast-2
+  stage: p
+  memorySize: 128
+  timeout: 300
+  layers:
+    - arn:aws:lambda:ap-northeast-2:664652812385:layer:TelegramLayer:1
+
+functions:
+  send:
+    handler: handler.send
+    events:
+      - sqs:
+         arn:
+          Fn::GetAtt:
+            - SendQueue
+            - Arn
+
+resources:
+  Resources:
+    SendQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "telegram-manager-queue"
+        VisibilityTimeout: 300
