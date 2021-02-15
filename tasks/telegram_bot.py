@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 import telegram
 from telegram import ReplyKeyboardMarkup
-from telegram.error import RetryAfter, TimedOut, NetworkError
+from telegram.error import RetryAfter, TimedOut, NetworkError, Unauthorized
 
 from configs import RETRY
 
@@ -36,6 +36,8 @@ def send_message(token: str, chat_id: typing.Union[int, str], text: str,
                                  reply_markup=reply_markup,
                                  disable_web_page_preview=True)
                 break
+            except Unauthorized:  # bot was blocked by the user
+                break   
             except TimedOut:  # 요청이 갔을 가능성이 있으므로
                 break
             except (NetworkError, RetryAfter) as e:
