@@ -1,7 +1,7 @@
 service: telegram-manager
 frameworkVersion: '2'
 
-custom: ${file(./config.yml)}
+custom: ${file(./configs.yml)}
 provider:
   name: aws
   memorySize: 128

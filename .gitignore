@@ -5,4 +5,4 @@ __pycache__
 .idea
 
 settings.py
-config.yml
+configs.yml
