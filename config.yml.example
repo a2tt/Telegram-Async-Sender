@@ -1,0 +1,8 @@
+provider:
+  stage: p
+  runtime: python3.8
+  region: ap-northeast-2
+  profile: <AWS_profile_name_if_exists>
+  role: arn:aws:iam::<account_id>:role/<IAM_name>
+  layers:
+    - arn:aws:lambda:ap-northeast-2:<account_id>:layer:<layer_name>:<version_num>

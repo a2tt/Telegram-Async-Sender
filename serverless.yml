@@ -1,17 +1,17 @@
 service: telegram-manager
 frameworkVersion: '2'
 
+custom: ${file(./config.yml)}
 provider:
-  profile: usera2tt
   name: aws
-  runtime: python3.8
-  role: arn:aws:iam::664652812385:role/TelegramManagerRole
-  region: ap-northeast-2
-  stage: p
   memorySize: 128
   timeout: 300
-  layers:
-    - arn:aws:lambda:ap-northeast-2:664652812385:layer:TelegramLayer:1
+  stage: ${self:custom.provider.stage}
+  runtime: ${self:custom.provider.runtime}
+  profile: ${self:custom.provider.profile}
+  region: ${self:custom.provider.region}
+  role: ${self:custom.provider.role}
+  layers: ${self:custom.provider.layers}
 
 functions:
   send:
