@@ -1,7 +1,7 @@
-import typing
 import time
 import math
 from collections.abc import Iterable
+from typing import Union, List
 
 import telegram
 from telegram import ReplyKeyboardMarkup
@@ -10,47 +10,47 @@ from telegram.error import RetryAfter, TimedOut, NetworkError, Unauthorized
 from configs import RETRY
 
 
-def send_message(token: str, chat_id: typing.Union[int, str], text: str,
+def send_message(tokens: List, chat_id: Union[str, int], text: str,
                  parse_mode: str = None, reply_markup: list = None):
     """
-    :param token: telegram token
+    :param tokens: telegram token(s)
     :param chat_id: chat_id | channel_id | ...
-    :param text:
-    :param parse_mode: None | 'HTML'
-    :param reply_markup: list containing list. A list forms a row.
+    :param text: message to send
+    :param parse_mode: 'HTML' | None
+    :param reply_markup: list containing list. A list forms a row. (ex. [[opt1], [opt2, opt3]])
     """
-    bot = telegram.Bot(token)
-
     if not text:
         return None
 
     if isinstance(reply_markup, Iterable):
         reply_markup = ReplyKeyboardMarkup(reply_markup, one_time_keyboard=True)
 
-    splitted = split_message(text, parse_mode)
-    for msg in splitted:
+    for split_text in split_message(text, parse_mode):
         for idx in range(0, RETRY):
             try:
-                bot.send_message(chat_id=chat_id, text=msg, timeout=5,
+                # rotate tokens to avoid rate limit exceeded
+                bot = telegram.Bot(tokens[idx % len(tokens)])
+                bot.send_message(chat_id=chat_id, text=split_text, timeout=5,
                                  parse_mode=parse_mode,
                                  reply_markup=reply_markup,
                                  disable_web_page_preview=True)
                 break
-            except Unauthorized:  # bot was blocked by the user
-                break   
-            except TimedOut:  # 요청이 갔을 가능성이 있으므로
+            except Unauthorized:
+                # bot was blocked by the user
+                # or message with options isn't allowed at the chatting room
+                #   (ex. using reply_markup message to channel)
+                break
+            except TimedOut:
+                # there's a chance the message has already been sent
                 break
             except (NetworkError, RetryAfter) as e:
-                time.sleep(5)
+                time.sleep(3)
 
 
-def split_message(message, parse_mode):
-    """ telegram.Bot.send_message can send max 4096 characters """
-    messages = []
-
+def split_message(message, parse_mode) -> list:
+    """ telegram.Bot.send_message can only send maximum 4096 characters """
     if parse_mode == 'HTML':
-        messages.append(message)  # XXX HTML 종료 태그 위치로 나눠야 함
+        yield message  # XXX HTML 종료 태그 위치로 나눠야 함
     else:  # plain text
         for i in range(math.ceil(len(message) / 4000)):
-            messages.append(message[4000 * i: 4000 * (i + 1)])
-    return messages
+            yield message[4000 * i: 4000 * (i + 1)]
