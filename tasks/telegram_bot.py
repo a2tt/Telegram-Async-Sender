@@ -1,10 +1,9 @@
-import time
 import math
+import time
 from typing import Union, List, Optional
 
-from sentry_sdk import capture_message, set_context
-
 import telegram
+from sentry_sdk import capture_message, set_context
 from telegram import ReplyKeyboardMarkup
 from telegram.error import RetryAfter, TimedOut, NetworkError, Unauthorized
 
