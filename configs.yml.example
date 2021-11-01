@@ -6,3 +6,6 @@ provider:
   role: arn:aws:iam::<account_id>:role/<IAM_name>
   layers:
     - arn:aws:lambda:ap-northeast-2:<account_id>:layer:<layer_name>:<version_num>
+
+resources:
+  QueueName: telegram-manager-queue

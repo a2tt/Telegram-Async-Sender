@@ -28,5 +28,5 @@ resources:
     SendQueue:
       Type: "AWS::SQS::Queue"
       Properties:
-        QueueName: "telegram-manager-queue"
+        QueueName: ${self:custom.resources.QueueName}
         VisibilityTimeout: 300
