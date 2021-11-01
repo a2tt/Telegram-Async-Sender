@@ -11,8 +11,13 @@ from telegram.error import RetryAfter, TimedOut, NetworkError, Unauthorized
 from configs import RETRY
 
 
-def send_message(tokens: List, chat_id: Union[str, int], text: str,
-                 parse_mode: str = None, reply_markup: list = None):
+def send_message(
+    tokens: List,
+    chat_id: Union[str, int],
+    text: str,
+    parse_mode: Optional[str] = None,
+    reply_markup: Optional[list] = None
+):
     """
     :param tokens: telegram token(s)
     :param chat_id: chat_id | channel_id | ...
@@ -55,8 +60,14 @@ def send_message(tokens: List, chat_id: Union[str, int], text: str,
                 time.sleep(3)
 
 
-def split_message(message, parse_mode) -> list:
-    """ telegram.Bot.send_message can only send maximum 4096 characters """
+def split_message(
+    message,
+    parse_mode
+) -> list:
+    """
+    telegram.Bot.send_message can only send maximum 4096 characters
+    """
+
     if parse_mode == 'HTML':
         yield message  # XXX HTML 종료 태그 위치로 나눠야 함
     else:  # plain text
