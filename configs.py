@@ -5,3 +5,5 @@ with open('configs.yml', 'rt') as fp:
 
 RETRY = 5
 SQS_REGION = configs_yml['provider']['region']
+
+SENTRY_DSN = configs_yml.get('sentry_dsn')

@@ -1,8 +1,12 @@
-import traceback
 from typing import Union, List
 
+from sentry_sdk import capture_exception
+
 from helpers.aws_lambda import unpack
+from helpers.sentry import init_sentry
 from tasks.telegram_bot import send_message
+
+init_sentry()
 
 
 def send(event=None, context=None):
@@ -32,8 +36,8 @@ def send(event=None, context=None):
             for chat_id in chat_ids:  # available to send message to multiple users or channels
                 send_message(tokens=telegram_tokens, chat_id=chat_id, text=text,
                              parse_mode=data.get('parse_mode'), reply_markup=data.get('reply_markup'))
-        except:
-            traceback.print_exc()
+        except Exception as e:
+            capture_exception(e)
 
 
 if __name__ == '__main__':

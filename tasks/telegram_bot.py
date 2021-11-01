@@ -1,7 +1,8 @@
 import time
 import math
-from collections.abc import Iterable
-from typing import Union, List
+from typing import Union, List, Optional
+
+from sentry_sdk import capture_message, set_context
 
 import telegram
 from telegram import ReplyKeyboardMarkup
@@ -19,11 +20,11 @@ def send_message(tokens: List, chat_id: Union[str, int], text: str,
     :param parse_mode: 'HTML' | None
     :param reply_markup: list containing list. A list forms a row. (ex. [[opt1], [opt2, opt3]])
     """
+
     if not text:
         return None
 
-    if isinstance(reply_markup, Iterable):
-        reply_markup = ReplyKeyboardMarkup(reply_markup, one_time_keyboard=True)
+    _reply_markup = ReplyKeyboardMarkup(reply_markup, one_time_keyboard=True) if reply_markup else None
 
     for split_text in split_message(text, parse_mode):
         for idx in range(0, RETRY):
@@ -32,13 +33,20 @@ def send_message(tokens: List, chat_id: Union[str, int], text: str,
                 bot = telegram.Bot(tokens[idx % len(tokens)])
                 bot.send_message(chat_id=chat_id, text=split_text, timeout=5,
                                  parse_mode=parse_mode,
-                                 reply_markup=reply_markup,
+                                 reply_markup=_reply_markup,
                                  disable_web_page_preview=True)
                 break
-            except Unauthorized:
+            except Unauthorized as e:
                 # bot was blocked by the user
                 # or message with options isn't allowed at the chatting room
                 #   (ex. using reply_markup message to channel)
+                set_context('info', {
+                    'chat_id': chat_id,
+                    'split_text': split_text,
+                    'parse_mode': parse_mode,
+                    'reply_markup': reply_markup,
+                })
+                capture_message(str(e), level='info')
                 break
             except TimedOut:
                 # there's a chance the message has already been sent

@@ -9,3 +9,5 @@ provider:
 
 resources:
   QueueName: telegram-manager-queue
+
+sentry_dsn:
