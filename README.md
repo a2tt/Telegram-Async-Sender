@@ -1,6 +1,6 @@
-# Telegram-Manager
+# Telegram-Async-Sender
 
-Telegram-Manager for building asynchronous telegram sender using AWS SQS + Lambda.  
+Telegram-Async-Sender for building asynchronous telegram sender using AWS SQS + Lambda.  
 When you enqueue messages to AWS SQS, the SQS triggers Lambda and the Lambda sends telegram messages to the specified chat room.
 
 
